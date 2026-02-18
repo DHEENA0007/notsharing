@@ -1,0 +1,12 @@
+Mobile application
+
+student can upload notes and can download notes
+studenst post request for notes
+other can put in comments sharing notes in comments 
+only user no admin portal need 
+user register in application post or reuqest notes
+
+tech stack 
+backend : python Django
+frontend : flutter
+Databse : sql
