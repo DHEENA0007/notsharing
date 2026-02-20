@@ -8,7 +8,6 @@ class UserAdmin(BaseUserAdmin):
     list_display = ['email', 'username', 'full_name', 'college', 'is_active']
     list_filter = ['is_active', 'college', 'course']
     search_fields = ['email', 'username', 'full_name']
-    ordering = ['-date_joined']
     
     fieldsets = BaseUserAdmin.fieldsets + (
         ('Profile Info', {'fields': ('full_name', 'profile_picture', 'bio', 'college', 'course', 'year')}),
