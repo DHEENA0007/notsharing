@@ -46,7 +46,7 @@ def login(request):
         
         try:
             user = User.objects.get(email=email)
-            user = authenticate(username=user.username, password=password)
+            user = authenticate(request=request, email=email, password=password)
             if user:
                 token, _ = Token.objects.get_or_create(user=user)
                 return Response({
