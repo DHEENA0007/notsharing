@@ -3,7 +3,7 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .models import Subject, Note, NoteRequest, Comment, Download, Bookmark, Notification
 from .serializers import (
@@ -41,22 +41,22 @@ def login(request):
     """Login user"""
     serializer = UserLoginSerializer(data=request.data)
     if serializer.is_valid():
-        email = serializer.validated_data['email']
+        email = serializer.validated_data['email'].strip()
         password = serializer.validated_data['password']
-        
-        try:
-            user = User.objects.get(email=email)
-            user = authenticate(request=request, email=email, password=password)
-            if user:
-                token, _ = Token.objects.get_or_create(user=user)
-                return Response({
-                    'message': 'Login successful',
-                    'user': UserSerializer(user).data,
-                    'token': token.key
-                })
+
+        user = User.objects.filter(email__iexact=email).first()
+        if not user or not user.check_password(password):
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not user.is_active:
+            return Response({'error': 'Account is disabled'}, status=status.HTTP_403_FORBIDDEN)
+
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({
+            'message': 'Login successful',
+            'user': UserSerializer(user).data,
+            'token': token.key
+        })
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
